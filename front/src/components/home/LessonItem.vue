@@ -1,5 +1,5 @@
 <template>
-  <div class="lesson_item">
+  <div class="lesson_item" @click="showDetail">
       <div class="pic">
           <img src="https://10.url.cn/qqcourse_logo_ng/ajNVdqHZLLDQmr4USIicRvRDuPvoqxSrFkP1eCFdO8KtXGvDsncvSjZGute2heeGBCiblPsebfE4s/356" alt="">
       </div>
@@ -65,6 +65,17 @@ export default {
         }
       },
       type: Object
+    }
+  },
+  methods: {
+    showDetail (e) {
+      console.log('click', e.target)
+      this.$router.push({
+        name: '/teacher/lessonDetail',
+        params: {
+          lesson_id: this.lessonObj._id
+        }
+      })
     }
   }
 }

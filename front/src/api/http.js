@@ -4,7 +4,7 @@ import Vue from 'vue'
 const client = axios.create()
 
 const Http = function (options) {
-  options.url = 'http://localhost:8888/front' + options.url
+  options.url = 'http://localhost:8888' + options.url
   NProgress.start()
   const onSuccess = (response) => {
     NProgress.done()

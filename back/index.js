@@ -1,8 +1,11 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const dataUrl = 'mongodb://localhost:27017/cloud';
-const app = express();
+const bodyParser = require('body-parser')
 
+const app = express();
+app.use(bodyParser.urlencoded({ extended: false }))
+app.use(bodyParser.json())
 app.all('*', function (req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
     res.header('Access-Control-Allow-Headers', 'Content-Type, Content-Length, Authorization, Accept, X-Requested-With , yourHeaderFeild');
@@ -13,6 +16,7 @@ app.all('*', function (req, res, next) {
 });
 //路由划分
 app.use('/front', require('./router/front'));
+app.use('/admin', require('./router/admin'));
 mongoose.connect(dataUrl,{ useNewUrlParser: true }, function(err){
     if(err){
         console.log("连接失败")

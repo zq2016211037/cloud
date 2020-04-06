@@ -98,3 +98,21 @@ export const getChapters = (params) => Http({
   data: params,
   url: '/admin/getChapters'
 })
+
+export const createStudent = (params) => Http({
+  method: 'POST',
+  data: params,
+  url: '/admin/createStudent'
+})
+
+export const getStudents = (params) => Http({
+  method: 'POST',
+  data: params,
+  url: '/admin/getStudents'
+})
+
+export const deleteStudent = (params) => Http({
+  method: 'POST',
+  data: params,
+  url: '/admin/deleteStudent'
+})

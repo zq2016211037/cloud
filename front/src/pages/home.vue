@@ -17,6 +17,7 @@ import Header from '@/components/common/Header'
 import LessonItem from '@/components/home/LessonItem'
 import Living from '@/components/home/Living'
 import {getLessons} from '@/api/home'
+
 export default {
   data () {
     return {

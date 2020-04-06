@@ -1,5 +1,6 @@
 <template>
   <div class="lesson">
+    <userInfo/>
     <el-form ref="form" :model="form" class='addLesson' label-width="80px">
       <el-form-item label="课程名称">
         <el-input v-model="form.lesson_title"></el-input>
@@ -29,8 +30,6 @@
 
 <script>
 import userInfo from '@/components/teacher/userInfo'
-import LessonItem from '@/components/home/LessonItem'
-import Living from '@/components/home/Living'
 import { getLessons, createLesson } from '@/api/home'
 export default {
   data () {
@@ -74,13 +73,14 @@ export default {
     }
 
   },
-  components: {}
+  components: {
+    userInfo
+  }
 }
 </script>
 
 <style scoped lang="less">
 .lesson {
     padding: 50px 10%;
-
 }
 </style>

@@ -1,6 +1,6 @@
 <template>
   <div class="teacher">
-    <!-- <h-header/> -->
+    <UserInfo/>
     <h2 class="title">search out</h2>
     <el-input
         placeholder="请输入你想搜索的内容"
@@ -27,6 +27,7 @@
 import Header from '@/components/common/Header'
 import LessonItem from '@/components/home/LessonItem'
 import Living from '@/components/home/Living'
+import UserInfo from '@/components/teacher/userinfo'
 import {getLessons} from '@/api/home'
 export default {
   data () {
@@ -53,7 +54,8 @@ export default {
   components: {
     'h-header': Header,
     'h-LessonItem': LessonItem,
-    'h-Living': Living
+    'h-Living': Living,
+    UserInfo
   }
 }
 </script>

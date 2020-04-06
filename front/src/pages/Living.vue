@@ -6,9 +6,15 @@
       </div>
       <div class="liveroom">
           <div class="left video">
-              <video src="../../static/1.mp4" controls="controls">
-                您的浏览器不支持 video 标签。
-              </video>
+              <div v-if="!user.role">
+                <video src="../../static/1.mp4" controls="controls">
+                  您的浏览器不支持 video 标签。
+                </video>
+              </div>
+              <div v-if="user.role">
+                <div id="live" v-if="isLive"></div>
+                <div id="boardcast" v-else></div>
+              </div>
           </div>
           <div class="right chat">
               <p class="tabs">
@@ -35,6 +41,87 @@
       </div>
   </div>
 </template>
+
+<script>
+
+import 'dplayer/dist/DPlayer.min.css'
+import flvjs from 'flv.js'
+import DPlayer from 'dplayer'
+export default {
+  data () {
+    return {
+      weblesson: {
+        name: 'css北景相关属性',
+        university: '独一教育'
+      },
+      user: {
+        avata: 'https://thirdqq.qlogo.cn/g?b=sdk&k=anvhgBmzFkYIgW3hJwKE4A&s=140&t=1569855457'
+      },
+      textarea: '',
+      isLive: false
+    }
+  },
+  created () {
+    this.user = JSON.parse(sessionStorage.getItem('userInfo'))
+  },
+  mounted () {
+    if (this.user.role) {
+      console.log(this.user.role)
+      this.getBoardcast()
+    }
+  },
+  methods: {
+    goback () {
+      this.$router.push({
+        path: '/'
+      })
+    },
+    getLiving () {
+      const live = new DPlayer({
+        container: document.getElementById('live'),
+        live: true,
+        video: {
+          url: '/m3u8/live/test.m3u8',
+          type: 'hls'
+        }
+      })
+      live.on('play', () => {
+        live.destroy()
+        this.isLive = false
+        console.log('destroy')
+        setTimeout(() => {
+          console.log(document.getElementById('boardcast'))
+          this.getBoardcast()
+        }, 0)
+      })
+    },
+    getBoardcast () {
+      const boardcast = new DPlayer({
+        container: document.getElementById('boardcast'),
+        video: {
+          url: '/flv/live/test.flv',
+          type: 'customFlv',
+          customType: {
+            customFlv: function (video, player) {
+              console.log(video)
+              const flvPlayer = flvjs.createPlayer({
+                type: 'flv',
+                url: video.src
+              })
+              flvPlayer.attachMediaElement(video)
+              flvPlayer.load()
+            }
+          }
+        },
+        danmaku: {
+          id: '9E2E3368B56CDBB4',
+          api: 'https://api.prprpr.me/dplayer/'
+        }
+      })
+    }
+  }
+}
+</script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="less">
@@ -72,7 +159,17 @@
             width: 80%;
             background: #1d1d1d;
             border: 1px solid #d2d2d2;
+            height: 100%;
             video{
+                width: 100%;
+                height: calc(100vh - 54px);
+                outline: none;
+            }
+            #live{
+                width: 400px;
+                height: 300px;
+            }
+            #boardcast{
                 width: 100%;
                 height: calc(100vh - 54px);
                 outline: none;
@@ -117,25 +214,3 @@
     }
 }
 </style>
-
-<script>
-export default {
-  data () {
-    return {
-      weblesson: {
-        name: 'css北景相关属性',
-        university: '独一教育'
-      },
-      user: {
-        avata: 'https://thirdqq.qlogo.cn/g?b=sdk&k=anvhgBmzFkYIgW3hJwKE4A&s=140&t=1569855457'
-      },
-      textarea: ''
-    }
-  },
-  methods: {
-    goback () {
-      this.$router.back()
-    }
-  }
-}
-</script>

@@ -1,13 +1,19 @@
 <template>
   <div class="lessonDetail">
-    <el-form class="form" :model="newChapter" :visible='visible' :inline='isInline'>
+    <userInfo v-if="user.role"/>
+    <div class="addClass" v-if="!user.role">
+      <el-button type='primary' @click="backHome">返回首页</el-button>
+      <el-button @click="pickLesson" v-if="!added">添加课程</el-button>
+      <el-button type='warning' v-else>已添加</el-button>
+    </div>
+     <el-tabs class="tabpane" v-model="activeName" type="card" @tab-click="handleClick">
+    <el-tab-pane label="章节目录" name="first">
+      <el-form class="form" v-if="user.role" :model="newChapter" :visible='visible' :inline='isInline'>
         <el-form-item label='章数'>
              <el-input-number v-model="newChapter.chapter_number" @change="handleChangeChapter" :min="1" :max="10" label="描述文字"></el-input-number>
-            <!-- <el-input type='text' v-model='newChapter.chapter_title'></el-input> -->
         </el-form-item>
         <el-form-item label='节数'>
              <el-input-number v-model="newChapter.section_number" @change="handleChangeSection" :min="1" :max="10" label="描述文字"></el-input-number>
-            <!-- <el-input type='text' v-model='newChapter.chapter_title'></el-input> -->
         </el-form-item>
 
         <el-form-item label='章节内容'>
@@ -23,22 +29,45 @@
             <el-button @click="addChapter" type='primary'>新增章节</el-button>
         </el-form-item>
     </el-form>
-      <div class="chapters">
-          <div class="chapter-item" v-for="(chapter, index) in chapters" :key="chapter._id">
-             <h2 class="title">{{index + 1}} {{chapter.chapter_name}}</h2>
-             <p class="section" v-for="section in chapter.sections" :key="section.section_name">
-                 <span class="icon">
-                     <i class="el-icon-video-camera"></i>
-                 </span>
-                  <span>{{section.section_name}}</span>
-             </p>
-          </div>
-      </div>
+    <div class="chapters">
+        <div class="chapter-item" v-for="(chapter, index) in chapters" :key="chapter._id">
+            <h2 class="title">{{index + 1}} {{chapter.chapter_name}}</h2>
+            <p class="section" v-for="section in chapter.sections" :key="section.section_name" @click="getVideo(section.video)">
+                <span class="icon">
+                    <i class="el-icon-video-camera"></i>
+                </span>
+                <span>{{section.section_name}}</span>
+            </p>
+        </div>
+    </div>
+    </el-tab-pane>
+    <el-tab-pane label="选课学生管理" name="second" v-if="user.role">
+          <el-table
+            border
+            :data="studentList"
+            style="width: 50%; margin: 0 auto">
+            <el-table-column
+              prop="username"
+              label="学生昵称">
+            </el-table-column>
+            <el-table-column
+              fixed="right"
+              label="操作"
+              width="100">
+              <template slot-scope="scope">
+                <el-button @click="handleClick(scope.row)" type="text" size="small">查看</el-button>
+                <el-button type="text" size="small">编辑</el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+        </el-tab-pane>
+  </el-tabs>
   </div>
 </template>
 
 <script>
-import { getChapters, createChapter } from '@/api/home'
+import userInfo from '@/components/teacher/userInfo'
+import { getChapters, createChapter, getStudents, deleteStudent, createStudent } from '@/api/home'
 export default {
   data () {
     return {
@@ -57,16 +86,23 @@ export default {
         teacher_id: ''
       },
       isInline: true,
-      visible: false
+      visible: false,
+      activeName: 'first',
+      added: false,
+      studentList: []
     }
   },
   async mounted () {
     this.user = JSON.parse(sessionStorage.getItem('userInfo'))
-    console.log(this.$route)
+    console.log(this.$route, this.user)
     this.lesson_id = this.$route.params.lesson_id
     await this.getChapterLists()
+    await this.getStudentLists()
   },
   methods: {
+    handleClick (tab, event) {
+      console.log(tab, event)
+    },
     handleChangeChapter (value) {
       this.newChapter.chapter_number = value
     },
@@ -84,7 +120,7 @@ export default {
       })
     },
     addChapter () {
-      const {chapter_name, section_name,  chapter_number, section_number, video} = this.newChapter
+      const {chapter_name, section_name, chapter_number, section_number, video} = this.newChapter
       createChapter({
         chapter_name,
         section_name,
@@ -101,12 +137,50 @@ export default {
           this.getChapterLists()
         }
       })
+    },
+    getStudentLists () {
+      const _this = this
+      getStudents({
+        lesson_id: this.lesson_id
+      }).then(res => {
+        _this.studentList = res.data
+      })
+      getStudents({
+        lesson_id: this.lesson_id,
+        student_id: this.user._id
+      }).then(res => {
+        console.log(res)
+        _this.added = !!res.data.length
+      })
+    },
+    getVideo (url) {
+      console.log(url)
+      this.$router.push({
+        path: '/living',
+        query: url
+      })
+    },
+    pickLesson () {
+      createStudent({
+        lesson_id: this.lesson_id,
+        student_id: this.user._id
+      }).then(res => {
+        this.$message.success(res.message)
+      })
+    },
+    backHome () {
+      this.$router.push({
+        path: '/'
+      })
     }
   },
   computed: {
     // chapterLists () {
     //   return this.chapters
     // }
+  },
+  components: {
+    userInfo
   }
 }
 </script>
@@ -114,11 +188,19 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="less">
 .lessonDetail {
+    .addClass {
+      display: flex;
+      margin: 20px 10%;
+    }
+    .tabpane {
+      margin: 10px 10%;
+    }
     .form{
         margin: 20px auto;
+        display: flex;
+        flex-wrap: wrap;
     }
     .chapters {
-        margin: 0 10%;
         text-align: left;
         .chapter-item {
             .title{

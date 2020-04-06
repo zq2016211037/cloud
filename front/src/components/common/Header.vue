@@ -2,7 +2,7 @@
   <div id="header">
       <div class="logo_name">
           <span class="logo"></span>
-          <span class="name">云课堂</span>
+          <span class="name" @click="backHome">云课堂</span>
       </div>
       <div class="search">
           <el-input
@@ -17,11 +17,8 @@
             下拉菜单<i class="el-icon-arrow-down el-icon--right"></i>
           </span>
           <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item command="a">黄金糕</el-dropdown-item>
-            <el-dropdown-item command="b">狮子头</el-dropdown-item>
-            <el-dropdown-item command="c">螺蛳粉</el-dropdown-item>
-            <el-dropdown-item command="d" disabled>双皮奶</el-dropdown-item>
-            <el-dropdown-item command="e" divided>蚵仔煎</el-dropdown-item>
+            <el-dropdown-item command="a">我的课程</el-dropdown-item>
+            <el-dropdown-item command="b">我的任务</el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>
         <el-dialog
@@ -176,6 +173,11 @@ export default {
     // this.user = localStorage.getItem('user')
   },
   methods: {
+    backHome () {
+      this.$router.push({
+        path: '/'
+      })
+    },
     handleCommand (command) {
       this.$message('click on item ' + command)
     },
